@@ -1,7 +1,11 @@
 <template>
   <!-- <div>Authentification</div> -->
-  <div class="">
+  <div class="authentification">
     <!-- <button @click="deleteUser">Delete user</button> -->
+    <button @click="isSignUp = !isSignUp">
+      <span v-if="isSignUp">Sign up</span>
+      <span v-else>Sign in</span>
+    </button>
     <form
       class="formular"
       @submit.prevent="() => (isSignUp ? signUp() : login())"
@@ -15,10 +19,6 @@
 
       <button type="submit" class="submit-button">Submit</button>
     </form>
-    <button @click="isSignUp = !isSignUp">
-      <span v-if="isSignUp">Have an account? Log in instead</span>
-      <span v-else>Create a new account</span>
-    </button>
   </div>
 </template>
 
@@ -61,6 +61,11 @@ export default {
 </script>
 
 <style scoped>
+.authentification {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
 .formular {
   display: flex;
   flex-direction: column;

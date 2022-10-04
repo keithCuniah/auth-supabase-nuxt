@@ -20,8 +20,10 @@
 <script>
 export default {
   name: 'Layout',
-  data() {
-    return { authenticated: true };
+  computed: {
+    authenticated() {
+      return this.$store.getters.isAuthenticated;
+    },
   },
 };
 </script>

@@ -11,3 +11,9 @@ export const mutations = {
     }
   },
 };
+
+export const getters = {
+  isAuthenticated(state) {
+    return !!state.user;
+  },
+};
