@@ -47,13 +47,17 @@ export default {
   },
   methods: {
     async signUp() {
-      const { user, error } = await this.$supabase.auth.signUp(this.credential);
+      const { user, error } = await this.$supabase.auth.signUp({
+        ...this.credential,
+      });
       console.log({ ...this.credential });
       this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
       console.log('signUp', user, error);
     },
     async login() {
-      const { user, error } = await this.$supabase.auth.signIn(this.credential);
+      const { user, error } = await this.$supabase.auth.signIn({
+        ...this.credential,
+      });
       console.log('signIn', user, error);
     },
   },
