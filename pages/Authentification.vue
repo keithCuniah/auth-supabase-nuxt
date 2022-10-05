@@ -1,34 +1,24 @@
 <template>
-  <!-- <div>Authentification</div> -->
   <div class="authentification">
-    <!-- <button @click="deleteUser">Delete user</button> -->
     <button @click="isSignUp = !isSignUp">
       <span v-if="isSignUp">Sign up</span>
       <span v-else>Sign in</span>
     </button>
-    <form
-      class="formular"
-      @submit.prevent="() => (isSignUp ? signUp() : login())"
-    >
-      <input v-model="credential.email" type="text" placeholder="Email" />
-      <input
-        v-model="credential.password"
-        type="password"
-        placeholder="Password"
-      />
 
-      <button type="submit" class="submit-button">Submit</button>
-    </form>
+    <SignUpForm v-if="isSignUp" @onSubmit="signUp" />
+    <SignInForm v-if="!isSignUp" @onSubmit="login" />
   </div>
 </template>
 
 <script>
+import SignUpForm from '~/components/authentification/SignUpForm.vue';
+import SignInForm from '~/components/authentification/SignInForm.vue';
 export default {
   name: 'Authentification',
+  components: { SignUpForm, SignInForm },
   data() {
     return {
       isSignUp: true,
-      credential: { email: '', password: '' },
     };
   },
   computed: {
@@ -46,17 +36,19 @@ export default {
     },
   },
   methods: {
-    async signUp() {
+    async signUp({ email, password }) {
       const { user, error } = await this.$supabase.auth.signUp({
-        ...this.credential,
+        email,
+        password,
       });
       this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
       console.log('signUp', user, error);
     },
-    async login() {
+    async login({ email, password }) {
       try {
         const { user, error } = await this.$supabase.auth.signIn({
-          ...this.credential,
+          email,
+          password,
         });
         if (error) {
           alert(`Error ${error.status}: ${error.message}`);
@@ -79,21 +71,34 @@ export default {
   flex-direction: column;
   align-items: center;
 }
-.formular {
-  display: flex;
-  flex-direction: column;
-  max-width: 50em;
-  gap: 2em;
-}
 
-input {
-  padding: 2em;
-  background-color: #ddd;
-  border-radius: 20px;
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
 }
-.submit-button {
-  padding: 2em;
-  background-color: green;
-  border-radius: 20px;
+.form-signin .checkbox {
+  font-weight: 400;
+}
+.form-signin .form-control {
+  position: relative;
+  box-sizing: border-box;
+  height: auto;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type='email'] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type='password'] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
 }
 </style>
