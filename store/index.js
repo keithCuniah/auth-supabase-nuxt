@@ -17,3 +17,9 @@ export const getters = {
     return !!state.user;
   },
 };
+
+export const actions = {
+  RESET_AUTH_ACTION({ commit }) {
+    commit('ON_AUTH_STATE_CHANGED_MUTATION', false);
+  },
+};

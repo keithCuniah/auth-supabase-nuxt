@@ -11,6 +11,7 @@
       width="72"
       height="57"
     />
+    <button @click="logout">Log out</button>
     <main class="form-signin">
       <Nuxt />
     </main>
@@ -23,6 +24,27 @@ export default {
   computed: {
     authenticated() {
       return this.$store.getters.isAuthenticated;
+    },
+  },
+  methods: {
+    async logout() {
+      try {
+        const { error } = await this.$supabase.auth.signOut();
+        console.log(error);
+        this.$store.dispatch('RESET_AUTH_ACTION');
+        console.log(error);
+        if (error) {
+          alert('Error signing out');
+          console.error('Error', error);
+          return;
+        }
+
+        alert('You have signed out!');
+        this.$router.push('/authentification');
+      } catch (err) {
+        alert('Unknown error signing out');
+        console.error('Error', err);
+      }
     },
   },
 };
