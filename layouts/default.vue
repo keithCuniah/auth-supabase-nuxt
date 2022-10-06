@@ -40,7 +40,9 @@ export default {
         }
 
         alert('You have signed out!');
-        this.$router.push('/authentification');
+        this.$router.push({
+          name: 'Authentification',
+        });
       } catch (err) {
         alert('Unknown error signing out');
         console.error('Error', err);
