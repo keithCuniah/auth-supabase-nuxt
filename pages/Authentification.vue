@@ -9,13 +9,13 @@
       v-if="isSignUp"
       :disabledSubmitBtn="isErrorSignUp"
       @onSubmit="signUp"
-      @on-update-form="updateErrorSignUp"
+      @on-update-form="updateIsErrorSignUp"
     />
     <SignInForm
       v-if="!isSignUp"
       :disabledSubmitBtn="isErrorLogin"
       @onSubmit="login"
-      @on-update-form="updateErrorLogin"
+      @on-update-form="updateIsErrorLogin"
     />
     <!-- <button @click="signInWithGithub">Sign in with github?</button> -->
   </div>
@@ -50,25 +50,30 @@ export default {
   },
   methods: {
     async signUp({ firstName, lastName, email, password }) {
-      const { user, error: errorSignUp } = await this.$supabase.auth.signUp({
-        email,
-        password,
-        first_name: firstName,
-        last_name: lastName,
-      });
+      try {
+        const { user, error: errorSignUp } = await this.$supabase.auth.signUp({
+          email,
+          password,
+          first_name: firstName,
+          last_name: lastName,
+        });
 
-      // const { data: profile, error: errorInsert } = await this.$supabase
-      //   .from('profile')
-      //   .upsert([{ id: user.id, first_name: firstName, last_name: lastName }]);
+        // const { data: profile, error: errorInsert } = await this.$supabase
+        //   .from('profile')
+        //   .upsert([{ id: user.id, first_name: firstName, last_name: lastName }]);
 
-      // console.log(profile, errorInsert);
-      if (errorSignUp) {
-        alert(`Error ${errorSignUp.status}: ${errorSignUp.message}`);
-      }
-      if (user) {
+        // console.log(profile, errorInsert);
+        if (errorSignUp) {
+          alert(`Error ${errorSignUp.status}: ${errorSignUp.message}`);
+        }
+        if (user) {
+          alert(`Success! you are SIGNED UP !`);
+        }
         this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+        this.updateIsErrorLogin(errorSignUp);
+      } catch (err) {
+        alert(`FATAL ERROR : ${err}`);
       }
-      this.updateErrorLogin(errorSignUp);
     },
     async login({ email, password }) {
       try {
@@ -79,12 +84,13 @@ export default {
         if (errorLogin) {
           alert(`Error ${errorLogin.status}: ${errorLogin.message}`);
         }
-
+        if (user) {
+          alert(`Success! you are LOGGED IN !`);
+        }
         this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
-        this.updateErrorLogin(errorLogin);
-        console.log('signIn', user, errorLogin);
+        this.updateIsErrorLogin(errorLogin);
       } catch (err) {
-        alert(err);
+        alert(`FATAL ERROR : ${err}`);
       }
     },
     async signInWithGithub() {
@@ -97,14 +103,13 @@ export default {
       if (error) {
         alert(`Error ${error.status}: ${error.message}`);
       }
-      console.log(user, error);
 
       this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
     },
-    updateErrorLogin(value) {
+    updateIsErrorLogin(value) {
       this.isErrorLogin = !!value;
     },
-    updateErrorSignUp(value) {
+    updateIsErrorSignUp(value) {
       this.isErrorSignUp = !!value;
     },
   },
