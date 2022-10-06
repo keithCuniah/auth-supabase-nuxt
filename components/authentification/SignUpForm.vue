@@ -4,6 +4,22 @@
 
     <div class="form-floating">
       <input
+        v-model="credential.firstName"
+        type="text"
+        class="form-control"
+        placeholder="Julio"
+      />
+    </div>
+    <div class="form-floating">
+      <input
+        v-model="credential.lastName"
+        type="text"
+        class="form-control"
+        placeholder="IGLESIAS"
+      />
+    </div>
+    <div class="form-floating">
+      <input
         v-model="credential.email"
         type="email"
         class="form-control"
@@ -27,7 +43,9 @@
 export default {
   name: 'SignUpForm',
   data() {
-    return { credential: { email: '', password: '' } };
+    return {
+      credential: { firstName: '', lastName: '', email: '', password: '' },
+    };
   },
   methods: {
     onSubmit() {

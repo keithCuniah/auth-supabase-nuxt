@@ -1,33 +1,87 @@
 <template>
-  <form @submit.prevent="() => onSubmit()">
+  <div class="form-signin">
     <h1>Please sign in</h1>
+    <form
+      @submit.prevent="() => onSubmit()"
+      @change="$emit('on-change-changed')"
+    >
+      <div class="form-group">
+        <input
+          v-model.trim="credential.email"
+          type="email"
+          :class="{
+            'is-invalid': $v.credential.email.$invalid & $v.credential.$dirty,
+            'is-valid': !$v.credential.email.$invalid,
+          }"
+          class="form-control"
+          placeholder="name@example.com"
+          @blur="$v.$touch()"
+        />
+        <div class="error-desc">
+          <em v-if="$v.credential.email.$invalid & $v.credential.$dirty">
+            Please right a valid email
+          </em>
+        </div>
+      </div>
+      <div class="form-group">
+        <input
+          v-model="credential.password"
+          type="password"
+          :class="{
+            'is-invalid':
+              $v.credential.password.$invalid & $v.credential.$dirty,
+            'is-valid': !$v.credential.password.$invalid,
+          }"
+          class="form-control"
+          placeholder="Password"
+          autocomplete="new-password"
+          @blur="$v.$touch()"
+        />
+        <div class="error-desc">
+          <em v-if="$v.credential.password.$invalid & $v.credential.$dirty">
+            Please right a valid password. More than
+            {{ $v.credential.password.$params.minLength.min }} charaters
+          </em>
+        </div>
+      </div>
 
-    <div class="form-floating">
-      <input
-        v-model="credential.email"
-        type="email"
-        class="form-control"
-        placeholder="name@example.com"
-      />
-    </div>
-    <div class="form-floating">
-      <input
-        v-model="credential.password"
-        type="password"
-        class="form-control"
-        placeholder="Password"
-      />
-    </div>
-
-    <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
-  </form>
+      <button
+        class="w-100 btn btn-lg btn-primary"
+        type="submit"
+        :disabled="isSubmitDisabled"
+      >
+        Sign in
+      </button>
+    </form>
+  </div>
 </template>
 
 <script>
+import { required, email, minLength } from 'vuelidate/lib/validators';
 export default {
   name: 'SignInForm',
+  props: {
+    disabledSubmitBtn: {
+      type: Boolean,
+      required: true,
+    },
+  },
   data() {
     return { credential: { email: '', password: '' } };
+  },
+  validations: {
+    credential: {
+      email: {
+        required,
+        email,
+      },
+      password: { required, minLength: minLength(6) },
+    },
+  },
+  computed: {
+    isSubmitDisabled() {
+      return this.$v.credential.$invalid || this.disabledSubmitBtn;
+    },
   },
   methods: {
     onSubmit() {
@@ -39,32 +93,35 @@ export default {
 
 <style scoped>
 .form-signin {
-  width: 100%;
-  max-width: 330px;
-  padding: 15px;
-  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
 }
-.form-signin .checkbox {
-  font-weight: 400;
+
+form {
+  display: flex;
+  width: min-content;
+  flex-direction: column;
+  gap: 2em;
 }
-.form-signin .form-control {
+
+.form-group {
+  display: inline-flex;
+  flex-direction: column;
+}
+
+form .form-control {
   position: relative;
   box-sizing: border-box;
   height: auto;
   padding: 10px;
   font-size: 16px;
 }
-.form-signin .form-control:focus {
+form .form-control:focus {
   z-index: 2;
 }
-.form-signin input[type='email'] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-signin input[type='password'] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+
+.is-invalid {
+  border-color: red;
 }
 </style>

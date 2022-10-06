@@ -6,7 +6,13 @@
     </button>
 
     <SignUpForm v-if="isSignUp" @onSubmit="signUp" />
-    <SignInForm v-if="!isSignUp" @onSubmit="login" />
+    <SignInForm
+      v-if="!isSignUp"
+      :disabledSubmitBtn="errorLogin"
+      @onSubmit="login"
+      @on-change-changed="resetErrorLogin"
+    />
+    <!-- <button @click="signInWithGithub">Sign in with github?</button> -->
   </div>
 </template>
 
@@ -19,6 +25,7 @@ export default {
   data() {
     return {
       isSignUp: true,
+      errorLogin: false,
     };
   },
   computed: {
@@ -36,30 +43,58 @@ export default {
     },
   },
   methods: {
-    async signUp({ email, password }) {
+    async signUp({ firstName, lastName, email, password }) {
       const { user, error } = await this.$supabase.auth.signUp({
         email,
         password,
+        first_name: firstName,
+        last_name: lastName,
       });
+
       this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+
+      const { data: profile, error: errorInsert } = await this.$supabase
+        .from('profile')
+        .upsert([{ id: user.id, first_name: firstName, last_name: lastName }]);
+
+      console.log(profile, errorInsert);
       console.log('signUp', user, error);
     },
     async login({ email, password }) {
       try {
-        const { user, error } = await this.$supabase.auth.signIn({
+        const { user, error: errorLogin } = await this.$supabase.auth.signIn({
           email,
           password,
         });
-        if (error) {
-          alert(`Error ${error.status}: ${error.message}`);
+        if (errorLogin) {
+          alert(`Error ${errorLogin.status}: ${errorLogin.message}`);
+          this.errorLogin = true;
         }
         if (user) {
           this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+          this.resetErrorLogin = false;
         }
-        console.log('signIn', user, error);
+        console.log('signIn', user, errorLogin);
       } catch (err) {
         alert(err);
       }
+    },
+    async signInWithGithub() {
+      const { user, error } = await this.$supabase.auth.signUp({
+        provider: 'github',
+        password: 'need to have the password from github ',
+        email: 'need to have the password from github',
+      });
+      if (error) {
+        alert(`Error ${error.status}: ${error.message}`);
+      }
+      console.log(user, error);
+      if (user) {
+        this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+      }
+    },
+    resetErrorLogin() {
+      this.errorLogin = false;
     },
   },
 };
@@ -70,35 +105,5 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-.form-signin {
-  width: 100%;
-  max-width: 330px;
-  padding: 15px;
-  margin: auto;
-}
-.form-signin .checkbox {
-  font-weight: 400;
-}
-.form-signin .form-control {
-  position: relative;
-  box-sizing: border-box;
-  height: auto;
-  padding: 10px;
-  font-size: 16px;
-}
-.form-signin .form-control:focus {
-  z-index: 2;
-}
-.form-signin input[type='email'] {
-  margin-bottom: -1px;
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
-}
-.form-signin input[type='password'] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
 }
 </style>
