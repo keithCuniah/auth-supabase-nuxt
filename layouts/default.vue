@@ -1,8 +1,8 @@
 <template>
-  <div>
-    <nav class="">
+  <div class="default-layout">
+    <nav v-if="authenticated" class="">
       <NuxtLink to="/authentification" class=""> Login </NuxtLink>
-      <NuxtLink v-if="authenticated" to="/" class=""> go to app </NuxtLink>
+      <NuxtLink to="/" class=""> go to app </NuxtLink>
     </nav>
     <img
       class="image"
@@ -11,7 +11,7 @@
       width="72"
       height="57"
     />
-    <button @click="logout">Log out</button>
+    <button v-if="authenticated" @click="logout">Log out</button>
     <main class="form-signin">
       <Nuxt />
     </main>
@@ -50,4 +50,13 @@ export default {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+* {
+  font-family: 'Roboto Flex', sans-serif;
+}
+.default-layout {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+</style>
