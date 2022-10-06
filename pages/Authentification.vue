@@ -10,7 +10,7 @@
       v-if="!isSignUp"
       :disabledSubmitBtn="errorLogin"
       @onSubmit="login"
-      @on-change-changed="resetErrorLogin"
+      @on-update-form="resetErrorLogin"
     />
     <!-- <button @click="signInWithGithub">Sign in with github?</button> -->
   </div>

@@ -1,10 +1,7 @@
 <template>
   <div class="form-signin">
     <h1>Please sign in</h1>
-    <form
-      @submit.prevent="() => onSubmit()"
-      @change="$emit('on-change-changed')"
-    >
+    <form @submit.prevent="() => onSubmit()" @change="$emit('on-update-form')">
       <div class="form-group">
         <input
           v-model.trim="credential.email"
@@ -15,7 +12,7 @@
           }"
           class="form-control"
           placeholder="name@example.com"
-          @blur="$v.$touch()"
+          @blur="triggerVuelidateDirtyState"
         />
         <div class="error-desc">
           <em v-if="$v.credential.email.$invalid & $v.credential.$dirty">
@@ -35,7 +32,7 @@
           class="form-control"
           placeholder="Password"
           autocomplete="new-password"
-          @blur="$v.$touch()"
+          @blur="triggerVuelidateDirtyState"
         />
         <div class="error-desc">
           <em v-if="$v.credential.password.$invalid & $v.credential.$dirty">
@@ -86,6 +83,9 @@ export default {
   methods: {
     onSubmit() {
       this.$emit('onSubmit', this.credential);
+    },
+    triggerVuelidateDirtyState() {
+      this.$v.$touch();
     },
   },
 };
