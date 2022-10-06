@@ -5,12 +5,17 @@
       <span v-else>Sign in</span>
     </button>
 
-    <SignUpForm v-if="isSignUp" @onSubmit="signUp" />
+    <SignUpForm
+      v-if="isSignUp"
+      :disabledSubmitBtn="isErrorSignUp"
+      @onSubmit="signUp"
+      @on-update-form="updateErrorSignUp"
+    />
     <SignInForm
       v-if="!isSignUp"
-      :disabledSubmitBtn="errorLogin"
+      :disabledSubmitBtn="isErrorLogin"
       @onSubmit="login"
-      @on-update-form="resetErrorLogin"
+      @on-update-form="updateErrorLogin"
     />
     <!-- <button @click="signInWithGithub">Sign in with github?</button> -->
   </div>
@@ -25,7 +30,8 @@ export default {
   data() {
     return {
       isSignUp: true,
-      errorLogin: false,
+      isErrorLogin: false,
+      isErrorSignUp: false,
     };
   },
   computed: {
@@ -44,21 +50,25 @@ export default {
   },
   methods: {
     async signUp({ firstName, lastName, email, password }) {
-      const { user, error } = await this.$supabase.auth.signUp({
+      const { user, error: errorSignUp } = await this.$supabase.auth.signUp({
         email,
         password,
         first_name: firstName,
         last_name: lastName,
       });
 
-      this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+      // const { data: profile, error: errorInsert } = await this.$supabase
+      //   .from('profile')
+      //   .upsert([{ id: user.id, first_name: firstName, last_name: lastName }]);
 
-      const { data: profile, error: errorInsert } = await this.$supabase
-        .from('profile')
-        .upsert([{ id: user.id, first_name: firstName, last_name: lastName }]);
-
-      console.log(profile, errorInsert);
-      console.log('signUp', user, error);
+      // console.log(profile, errorInsert);
+      if (errorSignUp) {
+        alert(`Error ${errorSignUp.status}: ${errorSignUp.message}`);
+      }
+      if (user) {
+        this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+      }
+      this.updateErrorLogin(errorSignUp);
     },
     async login({ email, password }) {
       try {
@@ -68,18 +78,17 @@ export default {
         });
         if (errorLogin) {
           alert(`Error ${errorLogin.status}: ${errorLogin.message}`);
-          this.errorLogin = true;
         }
-        if (user) {
-          this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
-          this.resetErrorLogin = false;
-        }
+
+        this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
+        this.updateErrorLogin(errorLogin);
         console.log('signIn', user, errorLogin);
       } catch (err) {
         alert(err);
       }
     },
     async signInWithGithub() {
+      // FIXME : the OATH2 is not working yet
       const { user, error } = await this.$supabase.auth.signUp({
         provider: 'github',
         password: 'need to have the password from github ',
@@ -89,12 +98,14 @@ export default {
         alert(`Error ${error.status}: ${error.message}`);
       }
       console.log(user, error);
-      if (user) {
-        this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
-      }
+
+      this.$store.commit('ON_AUTH_STATE_CHANGED_MUTATION', user);
     },
-    resetErrorLogin() {
-      this.errorLogin = false;
+    updateErrorLogin(value) {
+      this.isErrorLogin = !!value;
+    },
+    updateErrorSignUp(value) {
+      this.isErrorSignUp = !!value;
     },
   },
 };
