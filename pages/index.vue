@@ -5,9 +5,19 @@
     </h1>
     <div v-if="!error" class="smoothies">
       <h3>Smoothies :</h3>
-      <ul v-for="smoothie in smoothies" :key="smoothie.id" class="smoothies">
-        <li>{{ smoothie.title }}</li>
-      </ul>
+
+      <table>
+        <tr>
+          <th>Smoothie</th>
+          <th>Method</th>
+          <th>Rating</th>
+        </tr>
+        <tr v-for="smoothie in smoothies" :key="smoothie.id">
+          <td>{{ smoothie.title }}</td>
+          <td>{{ smoothie.method }}</td>
+          <td>{{ smoothie.rating }}</td>
+        </tr>
+      </table>
     </div>
     <span v-else class="error-description">
       {{ error.message }}
@@ -44,3 +54,32 @@ export default {
   },
 };
 </script>
+<style scoped>
+table {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table td,
+table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+table tr:hover {
+  background-color: #ddd;
+}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #04aa6d;
+  color: white;
+}
+</style>
